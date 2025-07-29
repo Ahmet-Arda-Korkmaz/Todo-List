@@ -1,0 +1,77 @@
+#whitebtn
+{
+    display:none;
+}
+body.dark {
+    background-color: gray;
+    
+}
+body.white button{
+    background-color: rgb(61, 147, 146);
+    color: rgb(0, 0, 0);
+}
+body.dark button
+{
+     background-color: rgb(255, 255, 255);
+     color: black;
+}
+#temaBtn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 999;
+}
+body.dark {
+  background-color: #121212; /* Daha koyu arka plan */
+  color: #e0e0e0; /* Açık renk yazı */
+}
+
+/* Cardların koyu temada arka planı ve sınırı */
+body.dark .card {
+  background-color: #1e1e1e !important;
+  color: #f0f0f0 !important;
+  border: 1px solid #333;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Favori card koyu temada biraz daha açık */
+body.dark .card.favori {
+  background-color: #3a3a00 !important;
+  color: #fff9c4 !important;
+}
+
+/* Input kutusunu koyu tema için ayarla */
+body.dark .form-control {
+  background-color: #2a2a2a;
+  color: #ddd;
+  border: 1px solid #444;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Placeholder yazısını açık yap */
+body.dark .form-control::placeholder {
+  color: #aaa;
+}
+
+/* Buton renkleri koyu temaya uyumlu */
+body.dark .btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark .btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Tema butonu konumu sabit kalır */
+#temaBtn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 999;
+}

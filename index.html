@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Görev Listesi - Modal ile Tümünü Sil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css.css">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      color: #212529;
+    }
+    .card.favori {
+      background-color: #fff9c4 !important;
+    }
+    .btn-favori {
+      color: #ffb300;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="p-3">
+
+  <div class="container">
+    <h2>ToDo - List </h2>
+    <div class="input-group mb-3"  style="max-width: 400px;">
+      <input type="text"   id="gorevInput" class="form-control" placeholder="Yeni görev ekle" />
+      <button id="ekleBtn" class="btn btn-primary">Ekle</button>
+    </div>
+    <div class="container text-center " style="margin-top: 150px !important;" >
+     <h2>Görevler</h2>  
+    </div>
+    <div id="gorevListesi" class="row gy-3"></div>
+    <button id="temaBtn" class="btn btn-dark">Dark Mode</button>
+      <button id="resetBtn" class="btn btn-danger position-fixed bottom-0 end-0 m-3 z-3"> 
+        Uygulamayı Sıfırla
+      </button>
+
+    <button class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#silModal">Tümünü Sil</button>
+
+    <div class="modal fade" id="silModal" tabindex="-1" aria-labelledby="silModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="silModalLabel">Uyarı</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            Tüm görevler silinecek! Emin misiniz?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+            <button type="button" id="evetSilBtn" class="btn btn-danger">Sil, Evet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="duzenleModal" tabindex="-1" aria-labelledby="duzenleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="modal-content" id="duzenleForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="duzenleModalLabel">Görev Düzenle</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="duzenleInput" class="form-control" required />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+            <button type="submit" class="btn btn-success">Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script>
+   document.addEventListener("DOMContentLoaded", () => {
+  const gorevInput = document.getElementById("gorevInput");
+  const ekleBtn = document.getElementById("ekleBtn");
+  const gorevListesi = document.getElementById("gorevListesi");
+  const evetSilBtn = document.getElementById("evetSilBtn");
+  const duzenleModal = new bootstrap.Modal(document.getElementById("duzenleModal"));
+  const duzenleForm = document.getElementById("duzenleForm");
+  const duzenleInput = document.getElementById("duzenleInput");
+  const temaBtn = document.getElementById("temaBtn");
+  const body = document.body;
+
+  let gorevler = JSON.parse(localStorage.getItem("gorevler")) || [];
+  let aktifIndex = null;
+
+  function kaydetLocal() {
+    localStorage.setItem("gorevler", JSON.stringify(gorevler));
+  }
+
+  function render() {
+    gorevListesi.innerHTML = "";
+    gorevler.forEach((gorev, i) => {
+      const div = document.createElement("div");
+      div.className = "col-12 col-md-6 col-lg-4 ";
+      const favoriClass = gorev.favori ? "favori" : "";
+      div.innerHTML = `
+        <div class="card p-3 ${favoriClass}">
+          <div class="d-flex flex-column" style="min-height: 130px;">
+            <p class="flex-grow-1">${gorev.text}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <button class="btn btn-outline-primary btn-sm duzenleBtn" data-index="${i}" type="button">Düzenle</button>
+              <button class="btn btn-sm btn-favori btn-outline-warning favoriBtn ${gorev.favori ? "active" : ""}" data-index="${i}" type="button">⭐</button>
+              <button class="btn btn-outline-danger btn-sm silBtn" data-index="${i}" type="button">Sil</button>
+            </div>
+          </div>
+        </div>
+      `;
+      gorevListesi.appendChild(div);
+    });
+
+    document.querySelectorAll(".duzenleBtn").forEach(btn => {
+      btn.onclick = () => {
+        aktifIndex = +btn.dataset.index;
+        duzenleInput.value = gorevler[aktifIndex].text;
+        duzenleModal.show();
+      };
+    });
+
+    document.querySelectorAll(".favoriBtn").forEach(btn => {
+      btn.onclick = () => {
+        const i = +btn.dataset.index;
+        gorevler[i].favori = !gorevler[i].favori;
+        kaydetLocal();
+        render();
+      };
+    });
+
+    document.querySelectorAll(".silBtn").forEach(btn => {
+      btn.onclick = () => {
+        const i = +btn.dataset.index;
+        gorevler.splice(i, 1);
+        kaydetLocal();
+        render();
+      };
+    });
+  }
+
+  ekleBtn.onclick = () => {
+    const val = gorevInput.value.trim();
+    if (!val) return;
+    gorevler.push({ text: val, favori: false });
+    gorevInput.value = "";
+    kaydetLocal();
+    render();
+  };
+
+  duzenleForm.onsubmit = (e) => {
+    e.preventDefault();
+    if (aktifIndex === null) return;
+    const val = duzenleInput.value.trim();
+    if (!val) return;
+    gorevler[aktifIndex].text = val;
+    kaydetLocal();
+    render();
+    duzenleModal.hide();
+  };
+
+  evetSilBtn.onclick = () => {
+    gorevler = [];
+    kaydetLocal();
+    render();
+    const silModalEl = document.getElementById("silModal");
+    bootstrap.Modal.getInstance(silModalEl).hide();
+  };
+  let tema = localStorage.getItem("tema");
+
+  function guncelleTemaButonu() {
+    temaBtn.textContent = body.classList.contains("dark") ? "☀️" : "🌙";
+  }
+    if (!tema) {
+    tema = "white";
+    localStorage.setItem("tema", tema);
+  }
+
+  if (tema === "dark") {
+    body.classList.add("dark");
+  } else if (tema === "white") {
+    body.classList.remove("dark");
+  }
+  guncelleTemaButonu();
+
+  temaBtn.onclick = () => {
+    body.classList.toggle("dark");
+    const yeniTema = body.classList.contains("dark") ? "dark" : "white";
+    localStorage.setItem("tema", yeniTema);
+    guncelleTemaButonu();
+  }
+
+  document.getElementById("resetBtn").onclick = () => {
+  localStorage.clear(); 
+  location.reload();    
+};
+
+  render();
+});
+  </script>
+</body>
+</html>
